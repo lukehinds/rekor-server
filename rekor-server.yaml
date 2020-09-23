@@ -9,4 +9,4 @@ trillian_map_server:
 rekor_server:
   address: "127.0.0.1"
   port: 3000
- 
+  enforce_text_only: true

@@ -199,6 +199,7 @@ type addResponse struct {
 }
 
 func (api *API) addHandler(r *http.Request) (interface{}, error) {
+
 	file, header, err := r.FormFile("fileupload")
 	if err != nil {
 		return nil, err
@@ -210,6 +211,23 @@ func (api *API) addHandler(r *http.Request) (interface{}, error) {
 	byteLeaf, err := ioutil.ReadAll(file)
 	if err != nil {
 		return nil, err
+	}
+
+	// If this returns false, then its not a text file and
+	// enforce_text_only: true is in config
+	isFileAllowed, err := IsFileTypeAllowed(byteLeaf)
+	if err != nil {
+		return nil, err
+	}
+
+	logging.Logger.Infof("file allow", isFileAllowed)
+
+	if isFileAllowed == false {
+		return addResponse{
+			ServerResponse: ServerResponse{Status: "smappp"},
+			RespCodeJson:   RespCodeJson{"sss"},
+		}, nil
+
 	}
 
 	server := serverInstance(api.logClient, api.tLogID)
